@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="MPSProject">
+    <projectModules>
+      <modulePath path="$PROJECT_DIR$/devkits/com.itemis.ethereum.contracts/com.itemis.ethereum.contracts.devkit" folder="" />
+      <modulePath path="$PROJECT_DIR$/languages/com.itemis.ethereum.contracts.classic/com.itemis.ethereum.contracts.classic.mpl" folder="" />
+      <modulePath path="$PROJECT_DIR$/languages/com.itemis.ethereum.contracts.core/com.itemis.ethereum.contracts.core.mpl" folder="" />
+      <modulePath path="$PROJECT_DIR$/languages/com.itemis.ethereum.contracts.decision/com.itemis.ethereum.contracts.decision.mpl" folder="" />
+      <modulePath path="$PROJECT_DIR$/solutions/contracts.sandbox/contracts.sandbox.msd" folder="" />
+    </projectModules>
+  </component>
+</project>

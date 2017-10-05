@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dev-kit name="com.itemis.ethereum.contracts" uuid="485edda1-a23b-4265-9d9d-57a223f70c71">
+  <exported-language name="067e0a30-5cd8-4250-bc31-30d5a7689332(com.itemis.ethereum.contracts.core)" />
+  <exported-language name="cfaa4966-b7d5-4b69-b66a-309a6e1a7290(org.iets3.core.expr.base)" />
+  <exported-language name="6b277d9a-d52d-416f-a209-1919bd737f50(org.iets3.core.expr.simpleTypes)" />
+</dev-kit>
+
