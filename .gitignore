@@ -3,3 +3,6 @@ classes_gen
 source_gen
 source_gen.caches
 workspace.xml
+artifacts
+tmp
+.gradle

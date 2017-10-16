@@ -6,6 +6,8 @@
       <modulePath path="$PROJECT_DIR$/languages/com.itemis.ethereum.contracts.classic/com.itemis.ethereum.contracts.classic.mpl" folder="" />
       <modulePath path="$PROJECT_DIR$/languages/com.itemis.ethereum.contracts.core/com.itemis.ethereum.contracts.core.mpl" folder="" />
       <modulePath path="$PROJECT_DIR$/languages/com.itemis.ethereum.contracts.decision/com.itemis.ethereum.contracts.decision.mpl" folder="" />
+      <modulePath path="$PROJECT_DIR$/solutions/com.itemis.ethereum.build.allScripts/com.itemis.ethereum.build.allScripts.msd" folder="" />
+      <modulePath path="$PROJECT_DIR$/solutions/com.itemis.ethereum.build/com.itemis.ethereum.build.msd" folder="" />
       <modulePath path="$PROJECT_DIR$/solutions/contracts.sandbox/contracts.sandbox.msd" folder="" />
     </projectModules>
   </component>

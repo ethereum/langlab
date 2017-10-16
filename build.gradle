@@ -1,0 +1,174 @@
+//will import the gradle plugins fetched from nexus
+import de.itemis.mps.gradle.* 
+apply plugin: 'maven-publish'
+apply plugin: 'base'
+
+// ___________________ configurations ___________________
+// JDK_HOME required for adding tools.jar into classpath of the forked ant process
+if(System.getenv('USER')!=null && System.getenv('USER').equalsIgnoreCase("jenkins")){
+   println "CI is enabled"
+   //set CI-relevant properties
+   ext.nexusUsername = System.getenv('nexusUsername')
+   ext.nexusPassword=  System.getenv('nexusPassword')
+   ext.jdk_home = System.getenv('CI_jdk_home')
+}else {
+    println "CI is disabled"
+    if (!hasProperty("jdk_home")) {
+        def java_home = System.properties['java.home']
+        def jdk_home = java_home
+        if (!file("$jdk_home/lib/tools.jar").isFile()) {
+            jdk_home = jdk_home + "/.."
+        }
+        if (!file("$jdk_home/lib/tools.jar").isFile()) {
+            throw new GradleException("Was not able to locate jdk home folder. Use 'jdk_home' project variable to specify JDK location explicitly. Current JAVA_HOME is: $java_home")
+        }
+        ext.jdk_home = jdk_home
+    }
+}
+logger.info "jdk_home: $jdk_home"
+
+
+
+// Dependency versions
+ext.mpsVersion = '2017.2.2'
+ext.mbeddrVersion = '1.0.+'
+ext.iets3OpenSourceVersion = '0.1.+'
+
+// Default repository credentials
+if (!project.hasProperty('nexusUsername')) {
+    ext.nexusUsername = ''
+    ext.nexusPassword = ''
+}
+logger.info 'Repository username: {}', project.nexusUsername
+
+// URL to mbeddr Nexus
+ext.dependencyRepositories = [
+        'https://projects.itemis.de/nexus/content/repositories/mbeddr',
+        'https://projects.itemis.de/nexus/content/repositories/mbeddr_snapshots',
+]
+
+//will pull the groovy classes/types from nexus to the classpath
+buildscript {
+    repositories {
+        maven { url 'https://projects.itemis.de/nexus/content/repositories/mbeddr' }
+    }
+    dependencies {
+        classpath 'de.itemis.mps:mps-gradle-plugin:1.0+'
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion '4.1'
+    distributionType 'all'
+}
+
+configurations {
+    mps
+    projectLibraries
+}
+
+dependencies {
+    mps "com.jetbrains:mps:$mpsVersion"
+    projectLibraries "com.mbeddr:allScripts:$mbeddrVersion"
+    projectLibraries "com.mbeddr:platform:$mbeddrVersion"
+    projectLibraries "org.iets3.opensource:allScripts:$iets3OpenSourceVersion"
+    projectLibraries "org.iets3:opensource:$iets3OpenSourceVersion"
+}
+
+// ___________________ utilities ___________________
+File scriptFile(String relativePath) {
+    new File("$rootDir/$relativePath")
+}
+
+repositories {
+    //check for published artifacts in maven local
+    mavenLocal()
+    for (repoUrl in project.dependencyRepositories) {
+        maven {
+            url repoUrl
+            if (project.hasProperty('nexusUsername')) {
+                credentials {
+                    username project.nexusUsername
+                    password project.nexusPassword
+                }
+            }
+        }
+    }
+    //if the dependencies could not be found in all other places, check in mavenCentral
+    mavenCentral()
+}
+
+//define directories
+ext.artifactsDir = new File(rootDir, 'artifacts')
+ext.mpsDir = new File(artifactsDir, 'mps')
+ext.projectLibrariesDir = new File(buildDir, 'project-libraries')
+
+// Tasks for resolving dependencies
+task resolveMps(type: Copy) {
+    dependsOn configurations.mps
+    from {
+        configurations.mps.resolve().collect { zipTree(it) }
+    }
+    into mpsDir
+}
+
+
+task resolveProjectLibraries(type: Copy) {
+    dependsOn configurations.projectLibraries
+    from {
+        configurations.projectLibraries.resolve().collect { zipTree(it) }
+    }
+    into artifactsDir
+}
+
+task resolve(dependsOn: [resolveProjectLibraries]){}
+
+task generateLibrariesXml(type: GenerateLibrariesXml) {
+    description "Will read project libraries from projectlibraries.properties and generate libraries.xml in .mps directory. Libraries are loaded in mps during start."
+    defaults rootProject.file('projectlibraries.properties')
+    overrides rootProject.file('projectlibraries.overrides.properties')
+    destination file('VehicleModelingSystem/.mps/libraries.xml')
+}
+
+task setup {
+    // We resolve MPS not for the users to use it but for the distribution packaging script to be able to refer to it.
+    dependsOn resolveProjectLibraries
+    dependsOn generateLibrariesXml
+    description 'Set up MPS project libraries. Libraries are read in from projectlibraries.properties file.'
+}
+
+// Ant support
+configurations {
+    ant_lib
+}
+
+dependencies {
+    ant_lib "org.apache.ant:ant-junit:1.10.1"
+}
+
+ext.build_dir = '-Dbuild.dir=' + file(rootProject.projectDir.absolutePath).getAbsolutePath()
+ext.artifacts_dir = '-Dartifacts.root=' + new File(rootDir, 'artifacts')
+ext.mps_home = '-Dmps.home=' + resolveMps.destinationDir.getAbsolutePath()
+ext.langlab_home = '-Dlanglab.home=' + file(rootProject.projectDir.absolutePath).getAbsolutePath()
+
+// default arguments for ANT
+ext.buildScriptArgs = [mps_home, langlab_home, build_dir, artifacts_dir]
+// tools might be needed later for running test scripts
+ext.buildScriptClasspath = project.configurations.ant_lib.fileCollection({ true }) + project.files("$project.jdk_home/lib/tools.jar")
+
+
+// ___________________ build tasks ___________________
+task build_allScripts(type: BuildLanguages, dependsOn: [resolveMps, resolveProjectLibraries]) {
+    script rootProject.file('build/eth.buildAllScripts/buildBuildScript.xml')
+    scriptArgs = buildScriptArgs
+    scriptClasspath = buildScriptClasspath
+}
+
+task build_languages(type: BuildLanguages, dependsOn: build_allScripts) {
+    script scriptFile('build/eth.build/build.xml')
+    scriptArgs = buildScriptArgs
+    scriptClasspath = buildScriptClasspath
+}
+
+// default task to be executed
+rootProject.defaultTasks 'build_languages'
