@@ -1,21 +1,20 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ProjectLibraryManager">
-    <option name="libraries">
+<project version='4'>
+  <component name='ProjectLibraryManager'>
+    <option name='libraries'>
       <map>
-        <entry key="iets3.opensource">
+        <entry key='iets3.opensource'>
           <value>
             <Library>
-              <option name="name" value="iets3.opensource" />
-              <option name="path" value="${iets3.github.opensource.home}/code/languages" />
+              <option name='name' value='iets3.opensource' />
+              <option name='path' value='${iets3.github.opensource.home}/code/languages' />
             </Library>
           </value>
         </entry>
-        <entry key="mbeddr.platform">
+        <entry key='mbeddr.platform'>
           <value>
             <Library>
-              <option name="name" value="mbeddr.platform" />
-              <option name="path" value="${mbeddr.github.core.home}/code" />
+              <option name='name' value='mbeddr.platform' />
+              <option name='path' value='${mbeddr.github.core.home}/code' />
             </Library>
           </value>
         </entry>

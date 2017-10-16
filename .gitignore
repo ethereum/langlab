@@ -6,3 +6,4 @@ workspace.xml
 artifacts
 tmp
 .gradle
+projectlibraries.overrides.properties
