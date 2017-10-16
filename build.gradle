@@ -127,7 +127,7 @@ task generateLibrariesXml(type: GenerateLibrariesXml) {
     description "Will read project libraries from projectlibraries.properties and generate libraries.xml in .mps directory. Libraries are loaded in mps during start."
     defaults rootProject.file('projectlibraries.properties')
     overrides rootProject.file('projectlibraries.overrides.properties')
-    destination file('VehicleModelingSystem/.mps/libraries.xml')
+    destination file('ethereum-lang/.mps/libraries.xml')
 }
 
 task setup {
